@@ -1,0 +1,3 @@
+#!/bin/bash
+
+java -Xmx768M -XX:+UseCompressedOops -XX:MaxPermSize=250m -Dhttp.proxyHost=devscreen.gudev.gnl -Dhttp.proxyPort=3128 -jar `dirname $0`/sbt-launch.jar  "$@"
