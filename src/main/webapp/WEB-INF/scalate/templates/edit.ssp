@@ -1,0 +1,45 @@
+<%@ val event: com.gu.backchannel.model.Event%>
+<%@ val isNew: Boolean%>
+
+<h2>Edit event</h2>
+
+#if (isNew)
+<form class="form-stacked" method="post" action="/admin/save" >
+#else
+<form class="form-stacked" method="post" action="/admin/save/${event.id}" >
+#end
+    <fieldset>
+
+        <div class="control-group">
+            <label class="control-label" for="idInput">Id (url slug)</label>
+            <div class=controls">
+                <input type="text" class="input-xlarge" id="idInput" name="idInput" value="${event.id}">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="headlineInput">Headline</label>
+            <div class=controls">
+                <input type="text" class="input-xlarge" id="headlineInput" name="headlineInput" value="${event.headline}">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="descInput">trail text</label>
+            <div class=controls">
+                <input type="text" class="input-xlarge" id="descInput" name="descInput" value="${event.description getOrElse ""}">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="imageInput">image url</label>
+            <div class=controls">
+                <input type="text" class="input-xlarge" id="imageInput" name="imageInput" value="${event.imageUrl getOrElse ""}">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </fieldset>
+</form>

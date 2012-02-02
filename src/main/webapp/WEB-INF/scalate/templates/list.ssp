@@ -1,0 +1,15 @@
+<%@ val events: List[com.gu.backchannel.model.Event] %>
+
+<h2>Events</h2>
+#for (e <- events)
+    <div class="well" >
+        <h3>${e.headline}</h3>
+        <p>${e.description}</p>
+        <div class="btn-toolbar">
+            <a class="btn btn-info" href="/admin/edit/${e.id}">Edit</a>
+            <a class="btn btn-danger" href="/admin/record/${e.id}">Start recording</a>
+            <a class="btn" href="/frontend/live/${e.id}">View live</a>
+            <a class="btn" href="/frontend/playback/${e.id}">view playback</a>
+        </div>
+    </div>
+#end
