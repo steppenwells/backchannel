@@ -9,7 +9,8 @@ case class Event(@Key("_id") id: String = new ObjectId().toString,
                   description: Option[String],
                   imageUrl: Option[String],
                   startTime: Option[Long],
-                  updates: List[Update] = Nil) {
+                  updates: List[Update] = Nil,
+                  updateFetchers: Map[String, String]= Map()) {
 
 }
 

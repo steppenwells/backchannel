@@ -17,7 +17,7 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
 
   get("/admin/new") {
     contentType = "text/html"
-    val event = Event("", "headline", None, None, None, Nil)
+    val event = Event("", "headline", None, None, None, Nil, Map())
     layoutTemplate("/WEB-INF/scalate/templates/edit.ssp", "event" -> event, "isNew" -> true)
   }
 
@@ -34,7 +34,13 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     val trailText = params.get("descInput")
     val imageUrl = params.get("imageInput")
 
-    val event = Event(id, headline, trailText, imageUrl, None, Nil)
+    val twitterPair = params.get("twitterInput") map ("twitter" -> _)
+    val lbPair = params.get("liveblogInput") map ("liveblog" -> _)
+    val discussionPair = params.get("discussionInput") map ("discussion" -> _)
+
+    val updaters = List(twitterPair, lbPair, discussionPair) flatMap(p => p) toMap
+
+    val event = Event(id, headline, trailText, imageUrl, None, Nil, updaters)
 
     Mongo.insert(event)
 
@@ -47,10 +53,18 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     val trailText = params.get("descInput")
     val imageUrl = params.get("imageInput")
 
+    val twitterPair = params.get("twitterInput") map ("twitter" -> _)
+    val lbPair = params.get("liveblogInput") map ("liveblog" -> _)
+    val discussionPair = params.get("discussionInput") map ("discussion" -> _)
+
+    val updaters = List(twitterPair, lbPair, discussionPair) flatMap(p => p) toMap
+
     val currentEvent = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
     val event = currentEvent.copy(headline = headline,
       description = trailText,
-      imageUrl = imageUrl)
+      imageUrl = imageUrl,
+      updateFetchers = updaters
+    )
 
     Mongo.update(event)
 

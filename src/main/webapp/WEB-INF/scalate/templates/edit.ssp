@@ -38,6 +38,30 @@
             </div>
         </div>
 
+        <div class="control-group">
+            <label class="control-label" for="twitterInput">twitter</label>
+            <div class=controls">
+                <input type="text" class="input-xlarge" id="twitterInput" name="twitterInput" value="${event.updateFetchers.get("twitter") getOrElse ""}">
+                <span class="help-inline">the twitter #tag to use to find tweets about this event</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="liveblogInput">live blog</label>
+            <div class=controls">
+                <input type="text" class="input-xlarge" id="liveblogInput" name="liveblogInput" value="${event.updateFetchers.get("liveblog") getOrElse ""}">
+                <span class="help-inline">the id (url slug) of the live blog about this event</span>
+           </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="discussionInput">live blog</label>
+            <div class=controls">
+                <input type="text" class="input-xlarge" id="discussionInput" name="discussionInput" value="${event.updateFetchers.get("discussion") getOrElse ""}">
+                <span class="help-inline">the discussion id (short url slug) of the commentable article about this event</span>
+         </div>
+        </div>
+
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Save changes</button>
         </div>
