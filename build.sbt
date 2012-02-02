@@ -4,7 +4,7 @@ name := "backchannel"
 
 version := "1.0"
 
-scalaVersion := "2.8.1"
+scalaVersion := "2.9.1"
 
 // include web plugin settings in this project
 seq(webSettings :_*)
@@ -14,6 +14,7 @@ resolvers ++= Seq(
   "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
   "repo.novus rels" at "http://repo.novus.com/releases/",
   "repo.novus snaps" at "http://repo.novus.com/snapshots/",
+  "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
   "Guardian Github Releases" at "http://guardian.github.com/maven/repo-releases"
 )
 
@@ -25,8 +26,8 @@ libraryDependencies ++= Seq(
   "org.scalatra" %% "scalatra" % "2.0.0",
   "org.scalatra" %% "scalatra-scalate" % "2.0.0",
   "com.novus" %% "salat-core" % "0.0.8-SNAPSHOT",
-  "com.gu.openplatform" %% "content-api-client" % "1.11",
-  "net.liftweb" %% "lift-json" % "2.3"
+  "net.liftweb" %% "lift-json" % "2.3",
+  "se.scalablesolutions.akka" % "akka-actor" % "1.2"
 )
 
 // and use this version of jetty for jetty run
