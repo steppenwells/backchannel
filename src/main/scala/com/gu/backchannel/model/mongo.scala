@@ -11,7 +11,7 @@ object Mongo {
 
   object EventDao extends SalatDAO[Event, String](collection = MongoDataSource.eventCollection)
 
-  EventDao.collection.writeConcern = WriteConcern.Safe
+  EventDao.collection.writeConcern = WriteConcern.ReplicasSafe
 
   def loadEvent(id: String) = EventDao.findOneByID(id)
 
@@ -21,11 +21,16 @@ object Mongo {
 
   def update(event: Event) = EventDao.save(event)
 
+  var lock : AnyRef = new Object()
+
   def addUpdate(eventId: String, update: Update) = {
-    println("saving update: " + update)
-    val eo = loadEvent(eventId)
-    eo.foreach { e=>
-      EventDao.save(e.copy(updates = (update :: e.updates).distinct.sortBy(_.updateTime)))
+
+    lock.synchronized {
+      println("saving update: " + update)
+      val eo = loadEvent(eventId)
+      eo.foreach { e=>
+        EventDao.save(e.copy(updates = (update :: e.updates).distinct.sortBy(_.updateTime)))
+      }
     }
   }
 }

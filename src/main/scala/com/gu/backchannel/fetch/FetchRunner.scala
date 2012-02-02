@@ -91,7 +91,7 @@ class TwitterFetcherActor(eventId: String, hashTag: String) extends Actor {
         val update = Update(
           `type` = "tweet",
           updateTime = tweetTime.getTime,
-          updateHtml = "<p>" + tweet.text + "</p>"
+          updateHtml = "<h3>"+ tweet.from_user + "</h3><p>" + tweet.text + "</p>"
         )
 
         Mongo.addUpdate(eventId, update)
@@ -106,10 +106,49 @@ case class Tweet(created_at: String, from_user: String, text: String)
 
 class LiveblogFetcherActor(eventId: String, urlslug: String) extends Actor {
 
+  implicit val formats = net.liftweb.json.DefaultFormats
+
+  var lastId: Option[String] = None
+
   def receive = {
-    case "fetch" => { println("liveblog actor pinged " + eventId + " " + urlslug) }
+    case "fetch" => {
+      println("liveblog actor pinged " + eventId + " " + urlslug)
+
+      val params: Map[String, String] = lastId match {
+        case None => Map()
+        case Some(s) => Map("offset" -> s)
+      }
+
+      val response = HttpClient.get("http://flxapi.gucode.gnl:8080/api/live/" + urlslug, params)
+      val liveBlogResponse = parse(response).extract[LiveBlogWrapper].content
+
+      liveBlogResponse.blocks.foreach { block =>
+        val blocktime = block.publishedDate
+        val text = block.elements.map { element =>
+          element.fields.text
+        }.mkString("")
+
+        val update = Update(
+          `type` = "liveblog",
+          updateTime = blocktime,
+          updateHtml = text
+        )
+        Mongo.addUpdate(eventId, update)
+      }
+
+      val topBlock = liveBlogResponse.blocks.headOption
+      topBlock.foreach {block =>
+        lastId = Some(block.id)
+      }
+    }
   }
 }
+
+case class LiveBlogWrapper(content: LiveBlogResponse)
+case class LiveBlogResponse(blocks: List[LiveBlogBlock])
+case class LiveBlogBlock(id: String, publishedDate: Long, elements: List[LiveBlogElement])
+case class LiveBlogElement(fields: TextField)
+case class TextField(text: String)
 
 class DiscussionFetcherActor(eventId: String, urlslug: String) extends Actor {
 
