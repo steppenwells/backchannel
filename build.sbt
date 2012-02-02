@@ -27,7 +27,8 @@ libraryDependencies ++= Seq(
   "org.scalatra" %% "scalatra-scalate" % "2.0.0",
   "com.novus" %% "salat-core" % "0.0.8-SNAPSHOT",
   "net.liftweb" %% "lift-json" % "2.3",
-  "se.scalablesolutions.akka" % "akka-actor" % "1.2"
+  "se.scalablesolutions.akka" % "akka-actor" % "1.2",
+  "net.databinder" %% "dispatch-http" % "0.8.5"
 )
 
 // and use this version of jetty for jetty run

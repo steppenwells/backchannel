@@ -5,6 +5,7 @@
     <div class="well" >
         <h3>${e.headline}</h3>
         <p>${e.description}</p>
+        <p>updates: ${e.updates.size}</p>
         <div class="btn-toolbar">
             <a class="btn btn-info" href="/admin/edit/${e.id}">Edit</a>
             <a class="btn btn-danger" href="/admin/record/${e.id}">Start recording</a>

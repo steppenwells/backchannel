@@ -3,6 +3,10 @@ package com.gu.backchannel.fetch
 import akka.actor.Actor._
 import com.gu.backchannel.model.{Mongo, Update}
 import akka.actor.{ActorRef, Actor}
+import net.liftweb.json.JsonParser._
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
+import java.text.SimpleDateFormat
 
 class FetchActor extends Actor {
 
@@ -64,10 +68,41 @@ case class FetcherId(eventId: String, `type`: String)
 
 class TwitterFetcherActor(eventId: String, hashTag: String) extends Actor {
 
+  implicit val formats = net.liftweb.json.DefaultFormats
+
+  var lastId: Option[String] = None
+
+  val dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z")
+
   def receive = {
-    case "fetch" => { println("twitter actor pinged " + eventId + " " + hashTag) }
+    case "fetch" => {
+      println("twitter actor pinged " + eventId + " " + hashTag)
+      val basicParams: Map[String, String] = Map("q" -> hashTag, "result_type" -> "recent")
+      val params = lastId match {
+        case None => basicParams
+        case Some(s) => basicParams + ("since_id" -> s)
+      }
+      val response = HttpClient.get("http://search.twitter.com/search.json", params)
+
+      val twitterResponse = parse(response).extract[TwitterResponse]
+
+      twitterResponse.results.foreach { tweet =>
+        val tweetTime = dateFormat.parse(tweet.created_at)
+        val update = Update(
+          `type` = "tweet",
+          updateTime = tweetTime.getTime,
+          updateHtml = "<p>" + tweet.text + "</p>"
+        )
+
+        Mongo.addUpdate(eventId, update)
+      }
+      lastId = Some(twitterResponse.max_id_str)
+    }
   }
 }
+
+case class TwitterResponse(max_id_str: String, results: List[Tweet])
+case class Tweet(created_at: String, from_user: String, text: String)
 
 class LiveblogFetcherActor(eventId: String, urlslug: String) extends Actor {
 

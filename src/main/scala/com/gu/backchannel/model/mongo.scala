@@ -13,7 +13,6 @@ object Mongo {
 
   EventDao.collection.writeConcern = WriteConcern.Safe
 
-
   def loadEvent(id: String) = EventDao.findOneByID(id)
 
   def loadAllEvents = EventDao.find(MongoDBObject()).sort(orderBy = MongoDBObject("_id" -> 1)).toList
@@ -22,6 +21,13 @@ object Mongo {
 
   def update(event: Event) = EventDao.save(event)
 
+  def addUpdate(eventId: String, update: Update) = {
+    println("saving update: " + update)
+    val eo = loadEvent(eventId)
+    eo.foreach { e=>
+      EventDao.save(e.copy(updates = (update :: e.updates).distinct.sortBy(_.updateTime)))
+    }
+  }
 }
 
 

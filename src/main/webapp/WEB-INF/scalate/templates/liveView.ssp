@@ -1,0 +1,10 @@
+<%@ val event: com.gu.backchannel.model.Event%>
+
+<h2>${event.headline}</h2>
+<p>${event.description getOrElse ""}</p>
+#for (u <- event.updates)
+    <div class="well" >
+        <p>${u.updateTime}</p>
+        ${unescape(u.updateHtml)}
+    </div>
+#end

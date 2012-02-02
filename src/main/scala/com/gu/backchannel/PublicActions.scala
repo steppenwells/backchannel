@@ -108,6 +108,14 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     layoutTemplate("/WEB-INF/scalate/templates/list.ssp", "events" -> events)
   }
 
+  get("/frontend/live/*") {
+    contentType = "text/html"
+    val id = multiParams("splat").headOption getOrElse halt(status=400, reason="no id provided")
+    val event = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
+
+    layoutTemplate("/WEB-INF/scalate/templates/liveView.ssp", "event" -> event)
+  }
+
   error { case e => {
       log.error(e.toString)
       val stackTrace = e.getStackTraceString.split("\n") map { "\tat " + _ } mkString "\n"
