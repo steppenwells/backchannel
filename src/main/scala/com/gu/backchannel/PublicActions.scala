@@ -114,21 +114,35 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     val id = multiParams("splat").headOption getOrElse halt(status=400, reason="no id provided")
     val event = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
 
-    layoutTemplate("/WEB-INF/scalate/templates/liveView.ssp", "event" -> event)
-  }
-
-  get("/test/*") {
-    contentType = "text/html"
-    val id = multiParams("splat").headOption getOrElse halt(status=400, reason="no id provided")
-    val event = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
-
     val updates = event.updates groupBy(_.`type`)
     val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates)
 
     val updateJson = pretty(render(decompose(timedUpdate)))
 
-    layoutTemplate("/WEB-INF/scalate/templates/magicView.ssp", "updateJson" -> updateJson, "eventId" -> id, "latestTime" -> timedUpdate.time)
+    layoutTemplate("/WEB-INF/scalate/templates/magicView.ssp",
+      "updateJson" -> updateJson,
+      "eventId" -> id,
+      "latestTime" -> timedUpdate.time,
+      "isPlayback" -> false)
   }
+  
+  get("/frontend/playback/*") {
+      contentType = "text/html"
+      val id = multiParams("splat").headOption getOrElse halt(status=400, reason="no id provided")
+      val event = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
+  
+      val startTime = event.startTime.getOrElse(new DateTime().getMillis())
+      val updates = event.updates.filter(_.updateTime < startTime) groupBy(_.`type`)
+      val timedUpdate = TimedUpdate(startTime.toString, updates)
+  
+      val updateJson = pretty(render(decompose(timedUpdate)))
+  
+      layoutTemplate("/WEB-INF/scalate/templates/magicView.ssp",
+        "updateJson" -> updateJson,
+        "eventId" -> id,
+        "latestTime" -> timedUpdate.time,
+        "isPlayback" -> true)
+    }
 
   get("/frontend/updates/*") {
     contentType = "application/json"

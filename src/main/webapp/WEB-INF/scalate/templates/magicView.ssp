@@ -1,6 +1,7 @@
 <%@ val updateJson: String %>
 <%@ val eventId: String %>
 <%@ val latestTime: String %>
+<%@ val isPlayback: Boolean %>
 
 <script>
   var model = {
@@ -11,10 +12,24 @@
   };
 
   var latestTime = ${latestTime};
+  var refreshPeriod = 30000;
+
+  function updateTime(serverTime) {
+    #if(isPlayback)
+        latestTime = latestTime + refreshPeriod;
+    #else
+        latestTime = serverTime;
+    #end
+  }
+
 
   function getUpdates() {
 
+    #if(isPlayback)
+      var url = '/frontend/updates/${eventId}?from=' + latestTime + '&to=' + latestTime + refreshPeriod;
+    #else
       var url = '/frontend/updates/${eventId}?from=' + latestTime;
+    #end
 
       $.ajax({
           type: 'GET',
@@ -22,7 +37,7 @@
           dataType: 'json',
           contentType: 'application/json',
           success: function(block) {
-            latestTime = block.time;
+            updateTime(block.time);
             model.addUpdates(block);
           },
           error: function(error) {
