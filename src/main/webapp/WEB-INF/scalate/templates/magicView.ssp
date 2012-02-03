@@ -38,7 +38,9 @@
           contentType: 'application/json',
           success: function(block) {
             updateTime(block.time);
-            model.addUpdates(block);
+            if(block.count > 0) {
+                model.addUpdates(block);
+            }
           },
           error: function(error) {
               // TODO:  something with error state

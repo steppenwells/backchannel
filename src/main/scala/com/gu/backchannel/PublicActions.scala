@@ -124,7 +124,7 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     val event = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
 
     val updates = event.updates groupBy(_.`type`)
-    val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates)
+    val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates, event.updates.length)
 
     val updateJson = pretty(render(decompose(timedUpdate)))
 
@@ -142,7 +142,7 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
   
       val startTime = event.startTime.getOrElse(new DateTime().getMillis())
       val updates = event.updates.filter(_.updateTime < startTime) groupBy(_.`type`)
-      val timedUpdate = TimedUpdate(startTime.toString, updates)
+      val timedUpdate = TimedUpdate(startTime.toString, updates, event.updates.filter(_.updateTime < startTime).length)
   
       val updateJson = pretty(render(decompose(timedUpdate)))
   
@@ -172,7 +172,7 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
 
     val updates = updatesInPeriod groupBy(_.`type`)
 
-    val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates)
+    val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates, updatesInPeriod.length)
 
     pretty(render(decompose(timedUpdate)))
   }

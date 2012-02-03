@@ -18,5 +18,5 @@ case class Update(`type`: String,
                   updateTime: Long,
                   updateHtml: String)
 
-case class TimedUpdate(time: String, updates: Map[String, List[Update]])
+case class TimedUpdate(time: String, updates: Map[String, List[Update]], count: Int)
 
