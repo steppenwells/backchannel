@@ -12,8 +12,11 @@ Useful urls
 [The app](http://gnm41081:9080/admin/events)
 
 [live event](http://gnm41081:9080/admin/events)
+
 [live blog](https://flexible.gucode.gnl/admin/preview/ghack/live/demo)
+
 [commentable article](http://www.gucode.co.uk/technology/2012/feb/03/hacking-hackney)
+
 twitter hash tag = #ghack
 
 [playback demo](http://gnm41081:9080/frontend/playback/hackday/presentation)
