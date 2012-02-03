@@ -4,9 +4,9 @@ import akka.actor.Actor._
 import com.gu.backchannel.model.{Mongo, Update}
 import akka.actor.{ActorRef, Actor}
 import net.liftweb.json.JsonParser._
-import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import java.text.SimpleDateFormat
+import org.joda.time.DateTime
 
 class FetchActor extends Actor {
 
@@ -87,10 +87,11 @@ class TwitterFetcherActor(eventId: String, hashTag: String) extends Actor {
       val twitterResponse = parse(response).extract[TwitterResponse]
 
       twitterResponse.results.foreach { tweet =>
-        val tweetTime = dateFormat.parse(tweet.created_at)
+        //val tweetTime = dateFormat.parse(tweet.created_at)
+        val tweetTime =  new DateTime().getMillis
         val update = Update(
           `type` = "tweet",
-          updateTime = tweetTime.getTime,
+          updateTime = tweetTime,
           updateHtml = "<h3>"+ tweet.from_user + "</h3><p>" + tweet.text + "</p>"
         )
 
@@ -123,7 +124,8 @@ class LiveblogFetcherActor(eventId: String, urlslug: String) extends Actor {
       val liveBlogResponse = parse(response).extract[LiveBlogWrapper].content
 
       liveBlogResponse.blocks.foreach { block =>
-        val blocktime = block.publishedDate
+        // TODO sort properly val blocktime = block.publishedDate
+        val blocktime = new DateTime().getMillis
         val text = block.elements.map { element =>
           element.fields.text
         }.mkString("")

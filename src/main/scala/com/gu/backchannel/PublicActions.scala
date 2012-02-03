@@ -167,10 +167,11 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     }
     val updatesInPeriod = to match {
       case None => updatesFrom
-      case Some(f) => event.updates.filter(_.updateTime < f)
+      case Some(f) => updatesFrom.filter(_.updateTime < f)
     }
 
     val updates = updatesInPeriod groupBy(_.`type`)
+
     val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates)
 
     pretty(render(decompose(timedUpdate)))

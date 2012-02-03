@@ -26,7 +26,7 @@
   function getUpdates() {
 
     #if(isPlayback)
-      var url = '/frontend/updates/${eventId}?from=' + latestTime + '&to=' + latestTime + refreshPeriod;
+      var url = '/frontend/updates/${eventId}?from=' + latestTime + '&to=' + (latestTime + refreshPeriod);
     #else
       var url = '/frontend/updates/${eventId}?from=' + latestTime;
     #end
@@ -57,7 +57,7 @@
       <th>Comments</th>
     </tr>
   </thead>
-  <tbody data-bind="foreach: updates">
+  <tbody data-bind="foreach: updates" style="background-image:url('/static/img/water.jpg')">
     <tr>
       <td data-bind="foreach: updates.liveblog">
         <div class="well" data-bind="html: updateHtml"></div>
