@@ -132,10 +132,22 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
 
   get("/frontend/updates/*") {
     contentType = "application/json"
+
     val id = multiParams("splat").headOption getOrElse halt(status=400, reason="no id provided")
     val event = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
 
-    val updates = event.updates groupBy(_.`type`)
+    val from = params.get("from").map(_.toLong)
+    val to = params.get("to").map(_.toLong)
+    val updatesFrom = from match {
+      case None => event.updates
+      case Some(f) => event.updates.filter(_.updateTime >= f)
+    }
+    val updatesInPeriod = to match {
+      case None => updatesFrom
+      case Some(f) => event.updates.filter(_.updateTime < f)
+    }
+
+    val updates = updatesInPeriod groupBy(_.`type`)
     val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates)
 
     pretty(render(decompose(timedUpdate)))
