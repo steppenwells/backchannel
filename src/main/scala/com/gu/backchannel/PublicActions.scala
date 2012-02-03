@@ -89,6 +89,15 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
 
   get("/admin/record/*") {
     val id = multiParams("splat").headOption getOrElse halt(status=400, reason="no id provided")
+    val currentEvent = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
+
+    currentEvent.startTime match {
+      case Some(t) => //nothing
+      case None => {
+        val event = currentEvent.copy(startTime = Some(new DateTime().getMillis()))
+        Mongo.update(event)
+      }
+    }
 
     fetcher ! RecordMessage(id)
 
