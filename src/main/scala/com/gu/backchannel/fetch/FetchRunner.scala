@@ -154,8 +154,41 @@ case class TextField(text: String)
 
 class DiscussionFetcherActor(eventId: String, urlslug: String) extends Actor {
 
+
+  implicit val formats = net.liftweb.json.DefaultFormats
+
+  var lastId: Option[Long] = None
+
   def receive = {
-    case "fetch" => { println("discussion actor pinged " + eventId + " " + urlslug) }
+    case "fetch" => {
+      println("discussion actor pinged " + eventId + " " + urlslug)
+
+      val params: Map[String, String] = Map("orderBy" -> "newest")
+
+      val response = HttpClient.get("http://coddisapi01:8900/discussion-api/discussion//" + urlslug, params)
+      val discussionResponse = parse(response).extract[DiscussionWrapper].discussion
+
+      val newComments = discussionResponse.comments.takeWhile(_.id != lastId.getOrElse(0))
+
+      newComments.reverse foreach { comment =>
+        val update = Update(
+          `type` = "comment",
+          updateTime = new DateTime().getMillis,
+          updateHtml = "<h3>%s</h3>%s".format(comment.userProfile.username, comment.body)
+        )
+
+        Mongo.addUpdate(eventId, update)
+      }
+
+      val latestComment = discussionResponse.comments.headOption
+      latestComment.foreach {c => lastId = Some(c.id)}
+
+    }
   }
 }
+
+case class DiscussionWrapper(discussion: Discussion)
+case class Discussion(comments: List[Comment])
+case class Comment(id: Long, body: String, userProfile: UserProfile)
+case class UserProfile(username: String)
 

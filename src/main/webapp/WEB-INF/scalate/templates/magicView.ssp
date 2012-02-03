@@ -50,6 +50,13 @@
     setTimeout(getUpdates, refreshPeriod);
   }
 </script>
+<style>
+    .middleLane {
+        border-left: 6px dotted #0000AA;
+        border-right: 6px dotted #0000AA;
+    }
+
+</style>
 
 <table class="table">
   <thead>
@@ -64,7 +71,7 @@
       <td data-bind="foreach: updates.liveblog">
         <div class="well" data-bind="html: updateHtml"></div>
       </td>
-      <td data-bind="foreach: updates.tweet">
+      <td data-bind="foreach: updates.tweet" class="middleLane">
         <div class="well" data-bind="html: updateHtml"></div>
       </td>
       <td data-bind="foreach: updates.comment">
