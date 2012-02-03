@@ -1,7 +1,7 @@
 package com.gu.backchannel
 
 import fetch.{StopRecordMessage, RecordMessage, FetchActor}
-import model.{Mongo, Event}
+import model.{TimedUpdate, Mongo, Event}
 import org.scalatra.ScalatraFilter
 import org.slf4j.{LoggerFactory, Logger}
 import net.liftweb.json._
@@ -11,6 +11,7 @@ import org.scalatra.scalate.ScalateSupport
 import akka.actor.Actor._
 import akka.actor.Scheduler
 import java.util.concurrent.TimeUnit
+import org.joda.time.DateTime
 
 class PublicActions extends ScalatraFilter with ScalateSupport {
 
@@ -116,12 +117,34 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     layoutTemplate("/WEB-INF/scalate/templates/liveView.ssp", "event" -> event)
   }
 
+  get("/test/*") {
+    contentType = "text/html"
+    val id = multiParams("splat").headOption getOrElse halt(status=400, reason="no id provided")
+    val event = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
+
+    val updates = event.updates groupBy(_.`type`)
+    val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates)
+
+    val updateJson = pretty(render(decompose(timedUpdate)))
+
+    layoutTemplate("/WEB-INF/scalate/templates/magicView.ssp", "updateJson" -> updateJson, "eventId" -> id, "latestTime" -> timedUpdate.time)
+  }
+
+  get("/frontend/updates/*") {
+    contentType = "application/json"
+    val id = multiParams("splat").headOption getOrElse halt(status=400, reason="no id provided")
+    val event = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
+
+    val updates = event.updates groupBy(_.`type`)
+    val timedUpdate = TimedUpdate(new DateTime().getMillis().toString, updates)
+
+    pretty(render(decompose(timedUpdate)))
+  }
+
   error { case e => {
       log.error(e.toString)
       val stackTrace = e.getStackTraceString.split("\n") map { "\tat " + _ } mkString "\n"
       e.toString + "\n" + stackTrace
     }
   }
-
-
 }

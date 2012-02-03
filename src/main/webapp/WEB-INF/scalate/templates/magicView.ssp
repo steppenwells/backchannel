@@ -1,0 +1,62 @@
+<%@ val updateJson: String %>
+<%@ val eventId: String %>
+<%@ val latestTime: String %>
+
+<script>
+  var model = {
+    updates: ko.observableArray([${unescape(updateJson)}]),
+    addUpdates: function(block) {
+      model.updates.push(block);
+    }
+  };
+
+  var latestTime = ${latestTime};
+
+  function getUpdates() {
+
+      var url = '/frontend/updates/${eventId}?from=' + latestTime;
+
+      $.ajax({
+          type: 'GET',
+          url: url,
+          dataType: 'json',
+          contentType: 'application/json',
+          success: function(block) {
+            latestTime = block.time;
+            model.addUpdates(block);
+          },
+          error: function(error) {
+              // TODO:  something with error state
+          }
+      });
+  }
+</script>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Live blog updates</th>
+      <th>Tweets</th>
+      <th>Comments</th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: updates">
+    <tr>
+      <td data-bind="foreach: updates.liveblog">
+        <div class="well" data-bind="html: updateHtml"></div>
+      </td>
+      <td data-bind="foreach: updates.tweet">
+        <div class="well" data-bind="html: updateHtml"></div>
+      </td>
+      <td data-bind="foreach: updates.comment">
+        <div class="well" data-bind="html: updateHtml"></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<a class="btn" onClick="getUpdates(); return false" href="#">update</a>
+
+<script>
+  ko.applyBindings(model);
+</script>
