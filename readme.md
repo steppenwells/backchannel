@@ -11,7 +11,7 @@ Useful urls
 
 [The app](http://gnm41081:9080/admin/events)
 
-[live event](http://gnm41081:9080/admin/events)
+[live event](http://gnm41081:9080/frontend/live/live/demo)
 
 [live blog](https://flexible.gucode.gnl/admin/preview/ghack/live/demo)
 
