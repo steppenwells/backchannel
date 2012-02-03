@@ -2,6 +2,7 @@
 <%@ val eventId: String %>
 <%@ val latestTime: String %>
 <%@ val isPlayback: Boolean %>
+<%@ val event: com.gu.backchannel.model.Event%>
 
 <script>
   var model = {
@@ -12,11 +13,12 @@
   };
 
   var latestTime = ${latestTime};
-  var refreshPeriod = 30000;
+  var refreshPeriod = 10000;
+  var speedup = 5;
 
   function updateTime(serverTime) {
     #if(isPlayback)
-        latestTime = latestTime + refreshPeriod;
+        latestTime = latestTime + (refreshPeriod * speedup);
     #else
         latestTime = serverTime;
     #end
@@ -26,7 +28,7 @@
   function getUpdates() {
 
     #if(isPlayback)
-      var url = '/frontend/updates/${eventId}?from=' + latestTime + '&to=' + (latestTime + refreshPeriod);
+      var url = '/frontend/updates/${eventId}?from=' + latestTime + '&to=' + (latestTime + (refreshPeriod * speedup));
     #else
       var url = '/frontend/updates/${eventId}?from=' + latestTime;
     #end
@@ -57,6 +59,12 @@
     }
 
 </style>
+
+<h2>${event.headline}</h2>
+#if(event.imageUrl.isDefined)
+    <img src="${event.imageUrl}"/>
+#end
+<p>${event.description getOrElse ""}</p>
 
 <table class="table">
   <thead>

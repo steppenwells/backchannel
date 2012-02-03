@@ -69,6 +69,9 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     val trailText = params.get("descInput")
     val imageUrl = params.get("imageInput")
 
+    val fudgetime = params.getOrElse("startTimeInput", "")
+
+
     val twitterPair = params.get("twitterInput") flatMap ( fetcherPair("twitter", _))
     val lbPair = params.get("liveblogInput") flatMap ( fetcherPair("liveblog", _))
     val discussionPair = params.get("discussionInput") flatMap ( fetcherPair("discussion", _))
@@ -76,10 +79,17 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
     val updaters = List(twitterPair, lbPair, discussionPair) flatMap(p => p) toMap
 
     val currentEvent = Mongo.loadEvent(id) getOrElse halt(status=400, reason="failed to load event")
+
+    val fudgedTime = fudgetime.trim match {
+      case "" => currentEvent.startTime
+      case s => Some(s.toLong)
+    }
+
     val event = currentEvent.copy(headline = headline,
       description = trailText,
       imageUrl = imageUrl,
-      updateFetchers = updaters
+      updateFetchers = updaters,
+      startTime = fudgedTime
     )
 
     Mongo.update(event)
@@ -132,7 +142,8 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
       "updateJson" -> updateJson,
       "eventId" -> id,
       "latestTime" -> timedUpdate.time,
-      "isPlayback" -> false)
+      "isPlayback" -> false,
+      "event" -> event)
   }
   
   get("/frontend/playback/*") {
@@ -150,7 +161,8 @@ class PublicActions extends ScalatraFilter with ScalateSupport {
         "updateJson" -> updateJson,
         "eventId" -> id,
         "latestTime" -> timedUpdate.time,
-        "isPlayback" -> true)
+        "isPlayback" -> true,
+        "event" -> event)
     }
 
   get("/frontend/updates/*") {

@@ -55,11 +55,19 @@
         </div>
 
         <div class="control-group">
-            <label class="control-label" for="discussionInput">live blog</label>
+            <label class="control-label" for="discussionInput">discussion</label>
             <div class=controls">
                 <input type="text" class="input-xlarge" id="discussionInput" name="discussionInput" value="${event.updateFetchers.get("discussion") getOrElse ""}">
                 <span class="help-inline">the discussion id (short url slug) of the commentable article about this event</span>
          </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="startTimeInput">fudge start time</label>
+            <div class=controls">
+            <input type="text" class="input-xlarge" id="startTimeInput" name="startTimeInput" value="${event.startTime getOrElse ""}">
+            <span class="help-inline">use this to fudge the start time, if for example you messed up recording the demo.</span>
+        </div>
         </div>
 
         <div class="form-actions">
