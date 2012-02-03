@@ -44,6 +44,8 @@
               // TODO:  something with error state
           }
       });
+
+    setTimeout(getUpdates, refreshPeriod);
   }
 </script>
 
@@ -74,4 +76,5 @@
 
 <script>
   ko.applyBindings(model);
+  setTimeout(getUpdates, refreshPeriod);
 </script>
